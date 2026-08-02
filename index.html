@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Person-Wise Ledger Dashboard</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
+    padding: 20px;
+    color: #333;
+}
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header & Form Styling */
+.header-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h3 {
+    margin-bottom: 15px;
+    color: #495057;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+input {
+    flex: 1;
+    min-width: 180px;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 16px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #28a745;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #28a745;
+    color: white;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+.hidden {
+    display: none;
+}
+
+#cancelBtn {
+    background-color: #6c757d;
+}
+
+#cancelBtn:hover {
+    background-color: #5a6268;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.btn-secondary {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-block;
+}
+
+.btn-secondary:hover {
+    background-color: #0069d9;
+}
+
+/* Dashboard Split Layout */
+.main-layout {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .main-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Left Side: Person Cards Layout */
+.cards-panel {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.person-card {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.person-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    border-color: #28a745;
+}
+
+.person-card.active {
+    background: #e8f5e9;
+    border-color: #28a745;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.card-meta {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+/* Right Side: Table View Layout */
+.table-panel {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f0f2f5;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.grand-total-box {
+    background: #e8f5e9;
+    color: #1b5e20;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+th {
+    background-color: #343a40;
+    color: white;
+}
+
+tr:hover {
+    background-color: #f8f9fa;
+}
+
+.btn-edit {
+    background-color: #ffc107;
+    color: black;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Main Form & Backup Section -->
+        <div class="header-section">
+            <h2>💰 Ledger Management System</h2>
+            <form id="ledgerForm">
+                <input type="hidden" id="editIndex">
+                <div class="form-group">
+                    <input type="text" id="name" placeholder="Enter Person Name" required>
+                    <input type="date" id="date" required>
+                    <input type="number" id="amount" placeholder="Amount (₹)" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="submitBtn">Add Entry</button>
+                    <button type="button" id="cancelBtn" class="hidden">Cancel Edit</button>
+                </div>
+            </form>
+            <div class="action-buttons">
+                <button id="exportBtn" class="btn-secondary">📤 Export Data (JSON)</button>
+                <label for="importFile" class="btn-secondary">📥 Import Data (JSON)</label>
+                <input type="file" id="importFile" accept=".json" style="display: none;">
+            </div>
+        </div>
+
+        <!-- Main Body Layout: Split View -->
+        <div class="main-layout">
+            <!-- Left Panel: Person Cards -->
+            <div class="cards-panel">
+                <h3>👥 Persons Profiles</h3>
+                <div id="cardsContainer" class="cards-container">
+                    <!-- Dynamic Person Cards will load here -->
+                </div>
+            </div>
+
+            <!-- Right Panel: Ledger Table -->
+            <div class="table-panel">
+                <div class="table-header">
+                    <h3 id="tableTitle">📋 Select a person to view entries</h3>
+                    <div class="grand-total-box">
+                        Total: <span id="grandTotal">₹0.00</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Person's Running Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #888;">No person selected</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// DOM Elements
+const ledgerForm = document.getElementById('ledgerForm');
+const nameInput = document.getElementById('name');
+const dateInput = document.getElementById('date');
+const amountInput = document.getElementById('amount');
+const editIndexInput = document.getElementById('editIndex');
+const submitBtn = document.getElementById('submitBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const ledgerBody = document.getElementById('ledgerBody');
+const grandTotalDisplay = document.getElementById('grandTotal');
+const exportBtn = document.getElementById('exportBtn');
+const importFileInput = document.getElementById('importFile');
+const cardsContainer = document.getElementById('cardsContainer');
+const tableTitle = document.getElementById('tableTitle');
+
+// Data State
+let ledgerData = JSON.parse(localStorage.getItem('ledgerData')) || [];
+let selectedPerson = null; // Currently clicked person context track karne ke liye
+
+// Function: Process raw array data and calculate person profiles metadata
+function updateDashboard() {
+    renderPersonCards();
+    renderTable();
+    localStorage.setItem('ledgerData', JSON.stringify(ledgerData));
+}
+
+// Function: Core logic to render Sidebar profile cards
+function renderPersonCards() {
+    cardsContainer.innerHTML = '';
+    
+    // Sabhi persons ke global calculation summary nikalne ke liye object setup
+    let personSummary = {};
+
+    ledgerData.forEach(entry => {
+        const nameKey = entry.name.trim();
+        if (!personSummary[nameKey]) {
+            personSummary[nameKey] = { total: 0, count: 0 };
+        }
+        personSummary[nameKey].total += parseFloat(entry.amount);
+        personSummary[nameKey].count += 1;
+    });
+
+    const uniquePersons = Object.keys(personSummary);
+
+    if (uniquePersons.length === 0) {
+        cardsContainer.innerHTML = '<p style="color:#888; text-align:center;">No profiles available.</p>';
+        return;
+    }
+
+    uniquePersons.forEach(personName => {
+        const stats = personSummary[personName];
+        const card = document.createElement('div');
+        card.className = `person-card ${selectedPerson === personName ? 'active' : ''}`;
+        
+        card.innerHTML = `
+            <div class="card-header">
+                <span>👤 ${personName}</span>
+                <span style="color: #28a745;">₹${stats.total.toFixed(2)}</span>
+            </div>
+            <div class="card-meta">Total Entries: ${stats.count}</div>
+        `;
+
+        card.addEventListener('click', () => {
+            selectedPerson = personName;
+            updateDashboard();
+        });
+
+        cardsContainer.appendChild(card);
+    });
+}
+
+// Function: Renders ledger entries only for the specific selected person card
+function renderTable() {
+    ledgerBody.innerHTML = '';
+
+    if (!selectedPerson) {
+        tableTitle.innerText = "📋 Select a person to view entries";
+        grandTotalDisplay.innerText = "₹0.00";
+        ledgerBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #888;">No person selected</td></tr>`;
+        return;
+    }
+
+    tableTitle.innerText = `📋 Entries for ${selectedPerson}`;
+    let runningTotal = 0;
+
+    // Direct unique mapping check sequence loops
+    ledgerData.forEach((entry, index) => {
+        if (entry.name.trim().toLowerCase() === selectedPerson.toLowerCase()) {
+            runningTotal += parseFloat(entry.amount);
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${entry.date}</td>
+                <td>₹${parseFloat(entry.amount).toFixed(2)}</td>
+                <td><strong>₹${runningTotal.toFixed(2)}</strong></td>
+                <td>
+                    <button class="btn-edit" onclick="editEntry(${index})">Edit</button>
+                    <button class="btn-delete" onclick="deleteEntry(${index})">Delete</button>
+                </td>
+            `;
+            ledgerBody.appendChild(row);
+        }
+    });
+
+    grandTotalDisplay.innerText = `₹${runningTotal.toFixed(2)}`;
+}
+
+// Function: Add or Update entry trigger event handlers
+ledgerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name = nameInput.value.trim();
+    const date = dateInput.value;
+    const amount = parseFloat(amountInput.value);
+    const editIndex = editIndexInput.value;
+
+    const entry = { name, date, amount };
+
+    if (editIndex === '') {
+        ledgerData.push(entry);
+        selectedPerson = name; // Naye entry wale person ko automatic target set karega view pane ke liye
+    } else {
+        const oldName = ledgerData[editIndex].name;
+        ledgerData[editIndex] = entry;
+        resetForm();
+        // Dynamic check condition state logic fallback handling
+        selectedPerson = name; 
+    }
+
+    updateDashboard();
+    ledgerForm.reset();
+});
+
+// Function: Trigger Entry State modification setup updates inside values
+window.editEntry = function(index) {
+    const entry = ledgerData[index];
+    nameInput.value = entry.name;
+    dateInput.value = entry.date;
+    amountInput.value = entry.amount;
+    editIndexInput.value = index;
+
+    submitBtn.innerText = 'Update Entry';
+    cancelBtn.classList.remove('hidden');
+};
+
+cancelBtn.addEventListener('click', resetForm);
+
+function resetForm() {
+    ledgerForm.reset();
+    editIndexInput.value = '';
+    submitBtn.innerText = 'Add Entry';
+    cancelBtn.classList.add('hidden');
+}
+
+// Function: Delete specific selected row element index values tracking elements
+window.deleteEntry = function(index) {
+    if (confirm('Are you sure you want to delete this record?')) {
+        const personToDelete = ledgerData[index].name;
+        ledgerData.splice(index, 1);
+        
+        // Agar us bande ki saari entries khatam ho gyi to panel view reset toggle handling clear parameters
+        const hasMoreEntries = ledgerData.some(entry => entry.name.trim().toLowerCase() === personToDelete.toLowerCase());
+        if (!hasMoreEntries) {
+            selectedPerson = null;
+        }
+
+        updateDashboard();
+        resetForm();
+    }
+};
+
+// Export Logic System Engine Setup Functions
+exportBtn.addEventListener('click', () => {
+    if (ledgerData.length === 0) {
+        alert('No data to export!');
+        return;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(ledgerData, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `ledger_backup.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+});
+
+// Import Logic System Engine Structure Config
+importFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        try {
+            const parsedData = JSON.parse(event.target.result);
+            if (Array.isArray(parsedData)) {
+                ledgerData = parsedData;
+                selectedPerson = null; // System resets view state properties clean map values
+                updateDashboard();
+                alert('Data Imported Successfully!');
+            } else {
+                alert('Invalid file structure. Must be a JSON Array pattern template.');
+            }
+        } catch (error) {
+            alert('Error parsing uploaded backup file configurations.');
+        }
+    };
+    reader.readAsText(file);
+});
+
+// App Engine Launch Setup Initialization sequence triggers
+updateDashboard();
+
+    </script>
+</body>
+</html>
